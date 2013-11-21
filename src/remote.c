@@ -95,6 +95,56 @@ Remote_name__set__(Remote *self, PyObject* py_name)
 }
 
 
+PyDoc_STRVAR(Remote_fetch_refspecs__doc__, "Fetch refspecs");
+
+
+PyObject * get_pylist_from_git_strarray(git_strarray *strarray)
+{
+    int index;
+    PyObject *pystring, *new_list;
+
+    new_list = PyList_New(0);
+    for (index = 0; index < strarray->count; (index)++ ) {
+        pystring = PyString_FromString(strarray->strings[index]);
+        PyList_Append(new_list, pystring);
+        Py_DECREF(pystring);
+    }
+
+    return new_list;
+}
+
+
+PyObject *
+Remote_fetch_refspecs__get__(Remote *self)
+{
+    git_strarray refspecs;
+    PyObject *new_list;
+
+    if (git_remote_get_fetch_refspecs(&refspecs, self->remote) == 0) {
+        new_list = get_pylist_from_git_strarray(&refspecs);
+        return new_list;
+    }
+    git_strarray_free(&refspecs);
+}
+
+
+PyDoc_STRVAR(Remote_push_refspecs__doc__, "Push refspecs");
+
+
+PyObject *
+Remote_push_refspecs__get__(Remote *self)
+{
+    git_strarray refspecs;
+    PyObject *new_list;
+
+    if (git_remote_get_push_refspecs(&refspecs, self->remote) == 0) {
+      new_list = get_pylist_from_git_strarray(&refspecs);
+      return new_list;
+    }
+    git_strarray_free(&refspecs);
+}
+
+
 PyDoc_STRVAR(Remote_url__doc__, "Url of the remote");
 
 PyObject *
@@ -295,6 +345,8 @@ PyGetSetDef Remote_getseters[] = {
     GETSET(Remote, name),
     GETSET(Remote, url),
     GETTER(Remote, refspec_count),
+    GETTER(Remote, fetch_refspecs),
+    GETTER(Remote, push_refspecs),
     {NULL}
 };
 
