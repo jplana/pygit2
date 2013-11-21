@@ -95,9 +95,6 @@ Remote_name__set__(Remote *self, PyObject* py_name)
 }
 
 
-PyDoc_STRVAR(Remote_fetch_refspecs__doc__, "Fetch refspecs");
-
-
 PyObject * get_pylist_from_git_strarray(git_strarray *strarray)
 {
     int index;
@@ -112,6 +109,9 @@ PyObject * get_pylist_from_git_strarray(git_strarray *strarray)
 
     return new_list;
 }
+
+
+PyDoc_STRVAR(Remote_fetch_refspecs__doc__, "Fetch refspecs");
 
 
 PyObject *
@@ -142,6 +142,66 @@ Remote_push_refspecs__get__(Remote *self)
       return new_list;
     }
     git_strarray_free(&refspecs);
+}
+
+
+git_strarray *
+get_strarraygit_from_pylist(PyObject *pylist)
+{
+    /* int index; */
+    /* PyObject *pystring, *new_list; */
+
+    /* new_list = PyList_New(0); */
+    /* for (index = 0; index < strarray->count; (index)++ ) { */
+    /*     pystring = PyString_FromString(strarray->strings[index]); */
+    /*     PyList_Append(new_list, pystring); */
+    /*     Py_DECREF(pystring); */
+    /* } */
+
+    /* return new_list; */
+}
+
+
+PyDoc_STRVAR(Remote_set_fetch_refspecs__doc__,
+    "set_fetch_refspecs([str])\n"
+    "\n");
+
+
+PyObject *
+Remote_set_fetch_refspecs(Remote *self, PyObject* args)
+{
+
+    PyObject *pyrefspecs;
+    git_strarray fetch_refspecs;
+
+    if !(PyArg_ParseTuple(args, "O", &pyrefspecs))
+      return NULL;
+
+    fetch_refspecs = get_strarraygit_from_pylist(pyrefspecs);
+    git_remote_set_fetch_refspecs(self->remote, fetch_refspecs);
+    git_strarray_free(&refspecs);
+}
+
+
+PyDoc_STRVAR(Remote_set_push_refspecs__doc__,
+             "set_push_refspecs([str])\n"
+             "\n");
+
+
+PyObject *
+Remote_set_push_refspecs(Remote *self)
+{
+
+  PyObject *pyrefspecs;
+  git_strarray fetch_refspecs;
+
+  if !(PyArg_ParseTuple(args, "O", &pyrefspecs))
+    return NULL;
+
+  fetch_refspecs = get_strarraygit_from_pylist(pyrefspecs);
+  git_remote_set_fetch_refspecs(self->remote, fetch_refspecs);
+  git_strarray_free(&refspecs);
+
 }
 
 
@@ -338,6 +398,8 @@ PyMethodDef Remote_methods[] = {
     METHOD(Remote, save, METH_NOARGS),
     METHOD(Remote, get_refspec, METH_O),
     METHOD(Remote, push, METH_VARARGS),
+    METHOD(Remote, set_fetch_refspec, METH_O),
+    METHOD(Remote, set_push_refspec, METH_O),
     {NULL}
 };
 
