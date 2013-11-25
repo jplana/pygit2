@@ -172,11 +172,11 @@ get_strarraygit_from_pylist(git_strarray *array, PyObject *pylist)
     // allocate new git_strarray
     void *ptr = calloc(n, sizeof(char *));
 
+    if (!ptr)
+      return -1;
+
     array->strings = ptr;
     array->count = n;
-
-    if (!ptr)
-        return -1;
 
     for (index = 0; index < n; index++) {
         item = PyList_GetItem(pylist, index);
@@ -234,7 +234,7 @@ Remote_set_push_refspecs(Remote *self, PyObject *args)
     if (! PyArg_Parse(args, "O", &pyrefspecs))
         return NULL;
 
-    if (get_strarraygit_from_pylist(&push_refspecs, pyrefspecs)) {
+    if (get_strarraygit_from_pylist(&push_refspecs, pyrefspecs) != 0) {
         return NULL;
     }
 
